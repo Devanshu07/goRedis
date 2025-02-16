@@ -12,6 +12,7 @@ import (
 const defaultListenAddr = ":5001" // Default port for the server
 type Config struct {
 	ListenAddr string // Configuration for the server address
+
 }
 type Server struct {
 	Config 				 // Embeds the Config struct (inherits its fields)
@@ -20,7 +21,10 @@ type Server struct {
 	addPeerCh chan *Peer // Channel to add new peers
 	quitCh chan struct{} // Channel to signal shutdown
 	msgCh chan []byte
+	kv KV
 }
+
+
 
 func NewServer(cfg Config) *Server {
 	if len(cfg.ListenAddr) == 0 {
@@ -32,6 +36,7 @@ func NewServer(cfg Config) *Server {
 		addPeerCh: make(chan *Peer),
 		quitCh: make(chan struct{}),
 		msgCh: make(chan []byte),
+		kv: *NewKV(),
 	}
 }
 
@@ -75,6 +80,10 @@ func(s *Server) acceptLoop() error{
 	}
 }
 
+func (s *Server) set(key , val string) error {
+
+}
+
 func (s *Server) handleRawMessage(rawMsg []byte) error{
 	cmd, err := parseCommand(string(rawMsg))
 	if err != nil {
@@ -83,6 +92,7 @@ func (s *Server) handleRawMessage(rawMsg []byte) error{
 	
 	switch v := cmd.(type) {
 	case SetCommand:
+		return s.set(v.key, v.val)
 		slog.Info("somebody wants to set a key into the hash table", "key", v.key, "value", v.val)
 	}
 	return nil
@@ -103,11 +113,11 @@ func main() {
 	}()
 	time.Sleep(time.Second)
 
-	client := client.New("localhost:5001")
+	c := client.New("localhost:5001")
 
-	if err := client.Set(context.TODO(), "foo", "bar"); err !=nil {
+	if err := c.Set(context.TODO(), "foo", "bar"); err !=nil {
 		log.Fatal(err)
 	}
-
-	// select {} //we are blocking here so the program does not exit
+	time.Sleep(time.Second)
+	//select {} //we are blocking here so the program does not exit
 }

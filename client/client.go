@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"net"
+
 	"github.com/tidwall/resp"
 )
 
@@ -11,7 +12,7 @@ type Client struct {
 	addr string
 }
 
-func NewClient(addr string) *Client {
+func New(addr string) *Client {
 	return &Client{
 		addr : addr,
 	}
