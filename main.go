@@ -1,9 +1,12 @@
 package main
 
 import (
+	"context"
+	"goredis/client"
 	"log"
 	"log/slog"
 	"net"
+	"time"
 )
 
 const defaultListenAddr = ":5001" // Default port for the server
@@ -98,5 +101,13 @@ func main() {
 		server := NewServer(Config{}) // Create server with default config
 		log.Fatal(server.Start())  // Start the server (exit on error)
 	}()
-	select {}
+	time.Sleep(time.Second)
+
+	client := client.New("localhost:5001")
+
+	if err := client.Set(context.TODO(), "foo", "bar"); err !=nil {
+		log.Fatal(err)
+	}
+
+	// select {} //we are blocking here so the program does not exit
 }

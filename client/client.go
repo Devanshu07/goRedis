@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"net"
-
 	"github.com/tidwall/resp"
 )
 
