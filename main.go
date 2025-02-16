@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"log/slog"
 	"net"
@@ -74,7 +73,15 @@ func(s *Server) acceptLoop() error{
 }
 
 func (s *Server) handleRawMessage(rawMsg []byte) error{
-	fmt.Println(string(rawMsg))
+	cmd, err := parseCommand(string(rawMsg))
+	if err != nil {
+		return err
+	}
+	
+	switch v := cmd.(type) {
+	case SetCommand:
+		slog.Info("somebody wants to set a key into the hash table", "key", v.key, "value", v.val)
+	}
 	return nil
 }
 
@@ -87,6 +94,9 @@ func (s *Server) handleConn(conn net.Conn){
 	}
 }
 func main() {
-	server := NewServer(Config{}) // Create server with default config
-	log.Fatal(server.Start())  // Start the server (exit on error)
+	go func() {
+		server := NewServer(Config{}) // Create server with default config
+		log.Fatal(server.Start())  // Start the server (exit on error)
+	}()
+	select {}
 }
