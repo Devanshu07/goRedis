@@ -98,7 +98,6 @@ func (s *Server) handleRawMessage(rawMsg []byte) error{
 func (s *Server) handleConn(conn net.Conn){
 	peer := NewPeer(conn, s.msgCh)  // Create a new Peer for the connection
 	s.addPeerCh <- peer	 // Register the peer via the channel
-	slog.Info("New peer conncted", "rempteAddr", conn.RemoteAddr())
 	if err := peer.readLoop(); err != nil {
 		slog.Error("Peer read error", "err", err, "remoteAddr", conn.RemoteAddr())
 	}
@@ -110,15 +109,14 @@ func main() {
 	}()
 	time.Sleep(time.Second)
 
-	for i:= 0; i<10; i++ {
-		c := client.New("localhost:5001")
+	c := client.New("localhost:5001")
+	for i := 0; i < 10; i++ {
 		if err := c.Set(context.TODO(), fmt.Sprintf("foo_%d", i), fmt.Sprintf("bar_%d", i)); err != nil {
 			log.Fatal(err)
 		}
 	}
 
-	fmt.Println(server.kv.data)
-
 	time.Sleep(time.Second)
+	fmt.Println(server.kv.data)
 	//select {} //we are blocking here so the program does not exit
 }
