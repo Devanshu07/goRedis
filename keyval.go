@@ -3,7 +3,7 @@ package main
 import "sync"
 
 type KV struct {
-	mu   sync.Mutex
+	mu   sync.RWMutex
 	data map[string][]byte
 }
 
