@@ -3,6 +3,7 @@ package client
 import (
 	"bytes"
 	"context"
+	"io"
 	"net"
 
 	"github.com/tidwall/resp"
@@ -23,13 +24,14 @@ func (c *Client) Set(ctx context.Context, key string, val string) error{
 	if err!= nil {
 		return err
 	}
-	var buf bytes.Buffer
-    wr := resp.NewWriter(&buf)
+	var buf *bytes.Buffer
+    wr := resp.NewWriter(buf)
 	wr.WriteArray([]resp.Value{
 			resp.StringValue("SET"), 
 			resp.StringValue(key), 
 			resp.StringValue(val),
 		})
 	_, err = conn.Write(buf.Bytes())
+	io.Copy(conn, buf)
 	return err
 }
