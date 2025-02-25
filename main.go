@@ -74,7 +74,7 @@ func (s *Server) loop() {
 	}
 }
 
-func(s *Server) acceptLoop() error{
+func(s *Server) acceptLoop() error {
 	for {
 		conn, err := s.ln.Accept()  // Block until a connection arrives
 		if err!= nil {
@@ -98,7 +98,7 @@ func (s *Server) handleMessage(msg Message) error {
 	case GetCommand:
 		val, ok := s.kv.Get(v.key)
 		if !ok {
-			return fmt.Errorf("Key not found")
+			return fmt.Errorf("key not found")
 		}
 		_, err := msg.peer.Send(val)
 		if err !=nil {
@@ -122,19 +122,21 @@ func main() {
 	}()
 	time.Sleep(time.Second)
 
-	c := client.New("localhost:5001")
+	c, err := client.New("localhost:5001")
+	if err != nil {
+		log.Fatal(err)
+	}
 	for i := 0; i < 10; i++ {
 		if err := c.Set(context.TODO(), fmt.Sprintf("foo_%d", i), fmt.Sprintf("bar_%d", i)); err != nil {
 			log.Fatal(err)
 		}
-		time.Sleep(time.Second)
+		fmt.Println("start GET")
 		val, err := c.Get(context.TODO(), fmt.Sprintf("foo_%d", i)) 
 		if err != nil {
 			log.Fatal(err)
 		}
+		fmt.Println("end GET")
 		fmt.Println("got this back =>", val)
 	}
-
-	
 	//select {} //we are blocking here so the program does not exit
 }
