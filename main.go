@@ -1,13 +1,11 @@
 package main
 
 import (
-	"context"
+	"flag"
 	"fmt"
-	"goredis/client"
 	"log"
 	"log/slog"
 	"net"
-	"time"
 )
 
 const defaultListenAddr = ":5001" // Default port for the server
@@ -54,7 +52,7 @@ func (s *Server) Start() error{  // Start TCP listener
 	s.ln=ln
 	go s.loop() // Start the event loop in a goroutine
 
-	slog.Info("Server running", "listenAddr", s.ListenAddr)
+	slog.Info("goredis server running", "listenAddr", s.ListenAddr)
 
 	return s.acceptLoop() // Block and accept connections
 }
@@ -111,26 +109,10 @@ func (s *Server) handleConn(conn net.Conn){
 	}
 }
 func main() {
-	server := NewServer(Config{}) // Create server with default config
-	go func() {
-		log.Fatal(server.Start())  // Start the server (exit on error)
-	}()
-	time.Sleep(time.Second)
-
-	c, err := client.New("localhost:5001")
-	if err != nil {
-		log.Fatal(err)
-	}
-	for i := 0; i < 10; i++ {
-		fmt.Println("SET =>", fmt.Sprintf("bar_%d", i))
-		if err := c.Set(context.TODO(), fmt.Sprintf("foo_%d", i), fmt.Sprintf("bar_%d", i)); err != nil {
-			log.Fatal(err)
-		}
-		val, err := c.Get(context.TODO(), fmt.Sprintf("foo_%d", i)) 
-		if err != nil {
-			log.Fatal(err)
-		}
-		fmt.Println("GET =>", val)
-	}
-	//select {} //we are blocking here so the program does not exit
+	listenAddr := flag.String("listenAddr", defaultListenAddr, "listen address of the goredis server")
+	flag.Parse()
+	server := NewServer(Config{
+		ListenAddr: *listenAddr,
+	}) 
+	log.Fatal(server.Start())  // Start the server (exit on error)
 }
