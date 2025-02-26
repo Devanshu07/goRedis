@@ -16,7 +16,7 @@ type Config struct {
 }
 
 type Message struct {
-	data []byte
+	cmd Command
 	peer *Peer
 }
 type Server struct {
@@ -87,12 +87,7 @@ func(s *Server) acceptLoop() error {
 
 
 func (s *Server) handleMessage(msg Message) error {
-	cmd, err := parseCommand(string(msg.data))
-	if err != nil {
-		return err
-	}
-	
-	switch v := cmd.(type) {
+	switch v := msg.cmd.(type) {
 	case SetCommand:
 		return s.kv.Set(v.key, v.val)
 	case GetCommand:
@@ -127,16 +122,15 @@ func main() {
 		log.Fatal(err)
 	}
 	for i := 0; i < 10; i++ {
+		fmt.Println("SET =>", fmt.Sprintf("bar_%d", i))
 		if err := c.Set(context.TODO(), fmt.Sprintf("foo_%d", i), fmt.Sprintf("bar_%d", i)); err != nil {
 			log.Fatal(err)
 		}
-		fmt.Println("start GET")
 		val, err := c.Get(context.TODO(), fmt.Sprintf("foo_%d", i)) 
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Println("end GET")
-		fmt.Println("got this back =>", val)
+		fmt.Println("GET =>", val)
 	}
 	//select {} //we are blocking here so the program does not exit
 }

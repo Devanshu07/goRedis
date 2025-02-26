@@ -45,7 +45,12 @@ func (p *Peer) readLoop() error {
 					cmd := GetCommand{
 						key: v.Array()[1].Bytes(),
 					}
-					fmt.Println("Got GET cmd %+v\n", cmd)
+
+					p.msgCh <- Message{
+						cmd: cmd,
+						peer: p,
+					}
+
 				case CommandSET:
 					if(len(v.Array()) != 3) {
 						return fmt.Errorf("invalid number of variables for SET command")
@@ -54,7 +59,11 @@ func (p *Peer) readLoop() error {
 						key: v.Array()[1].Bytes(),
 						val: v.Array()[2].Bytes(),
 					}
-					fmt.Println("Got SET cmd %+v\n", cmd)
+					
+					p.msgCh <- Message{
+						cmd: cmd,
+						peer: p,
+					}
 				}
             }
         }
