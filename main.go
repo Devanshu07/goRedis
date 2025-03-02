@@ -60,13 +60,14 @@ func (s *Server) Start() error{  // Start TCP listener
 func (s *Server) loop() {
 	for {
 		select {
-		case msg := <- s.msgCh:
-			if err := s.handleMessage(msg); err !=nil {
+		case msg := <-s.msgCh:
+			if err := s.handleMessage(msg); err != nil {
 				slog.Error("Raw Message error", "err", err)
 			} 
 		case <- s.quitCh:  // Shutdown signal
 			return
-		case peer := <- s.addPeerCh: // Add a new peer
+		case peer := <-s.addPeerCh: // Add a new peer
+			slog.Info("new peer connected", "remoteAddr", peer.conn.RemoteAddr())
 			s.peers[peer] = true
 		}
 	}
