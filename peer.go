@@ -67,6 +67,8 @@ func (p *Peer) readLoop() error {
 						cmd: cmd,
 						peer: p,
 					}
+				default:
+					fmt.Println(v.Array())
 				}
             }
         }
