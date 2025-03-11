@@ -62,6 +62,7 @@ func (p *Peer) readLoop() error {
 					cmd = HelloCommand{
 						value: v.Array()[1].String(),
 					}
+				}
 				p.msgCh <- Message{
 					cmd: cmd,
 					peer: p,

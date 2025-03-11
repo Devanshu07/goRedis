@@ -15,8 +15,8 @@ import (
 func TestNewClientRedisClient(t *testing.T) {
 	rdb := redis.NewClient(&redis.Options{
 		Addr: "localhost:5001",
-		Password: "",
-		DB: 0,
+		Password: "", // no password set
+		DB: 0, // use default DB
 	})
 	fmt.Println(rdb)
 	fmt.Println("this is working")
